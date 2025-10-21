@@ -80,52 +80,89 @@ async function getStoreProductsFlow(
 
 function createPrompt(storeName: string, existingProducts: string[]): string {
   const existingProductsText = existingProducts.length > 0 
-    ? existingProducts.map(product => `- ${product}`).join('\n')
-    : 'None';
+    ? `\nEXISTING PRODUCTS TO AVOID REPEATING:\n${existingProducts.map(product => `- ${product}`).join('\n')}`
+    : '';
 
   return `You are a product database generator for a South African grocery store app.
-Generate a list of 10 plausible, common grocery products sold at a store called ${storeName}.
+Generate a list of 10 realistic, branded grocery products available at ${storeName}.
 
-Make about 20% of the items "onSpecial". If an item is on special, provide a realistic originalPrice.
-For each product, provide a simple dataAiHint (1-2 words) for image generation.
-Ensure the generated products are different from the provided list of existing products.
+STORE PROFILES:
+- WOOLWORTHS: Premium quality, organic, free-range, higher prices. Brands: Woolworths, Nature's Choice
+- CHECKERS: Good quality, competitive pricing, strong house brands. Brands: Checkers, Freshmark
+- PICK N PAY: Balanced quality and price, good fresh sections. Brands: PnP, No Name
+- SHOPRITE: Budget-friendly, value brands, weekly specials. Brands: Ritebrand, House of Coffees
+- SPAR: Convenience focus, good fresh produce and bakery. Brands: Spar, Spar Let's Cook
 
-Store: ${storeName}
-Existing Products to avoid:
-${existingProductsText}
+REQUIREMENTS FOR ${storeName.toUpperCase()}:
+- Include specific brand names and sizes (e.g., "Clover Full Cream Milk 2L", "Albany Superior Brown Bread 700g")
+- Make 2-3 products "onSpecial" with realistic discount pricing
+- Use accurate South African pricing in ZAR
+- Include variety across categories: dairy, meat, produce, bakery, beverages, pantry, household
+- Make dataAiHint specific and descriptive for image generation
+- Ensure products are appropriate for ${storeName}'s typical inventory
 
-IMPORTANT: Return ONLY valid JSON in this exact format:
+PRICING GUIDELINES:
+- Woolworths: 15-30% higher than average
+- Pick n Pay: Average market prices
+- Spar: Slightly above average (+5-15%)
+- Shoprite: 5-20% below average
+- Checkers: Competitive, often matches Shoprite
+
+COMMON SOUTH AFRICAN BRANDS TO INCLUDE:
+- Dairy: Clover, Parmalat, Lancewood, Danone, Woolworths
+- Bread: Albany, Sasko, Blue Ribbon, Sunbake
+- Meat: Rainbow, Eskort, Supreme, Farmer's Choice
+- Pantry: Koo, All Gold, Tastic, Selati, Tiger Brands
+- Beverages: Coca-Cola, Appletiser, Ceres, Liqui-Fruit${existingProductsText}
+
+CRITICAL: Return ONLY valid JSON in this exact format:
 {
   "products": [
     {
       "id": 1,
-      "name": "Product Name",
+      "name": "Brand Product Name Size",
       "price": "R 45.99",
       "onSpecial": true,
       "originalPrice": "R 55.99",
       "image": "placeholder",
-      "dataAiHint": "product hint"
+      "dataAiHint": "specific product type"
     }
   ]
 }
 
-Guidelines:
-- Use realistic South African prices in ZAR
-- Include common grocery categories: dairy, meat, produce, bakery, beverages, household items
-- Make dataAiHint specific and descriptive (e.g., "fresh milk", "whole chicken", "loaf of bread")
-- Ensure IDs are unique numbers from 1 to 10
-- Products should be appropriate for the store type (e.g., Woolworths = premium, Shoprite = value)`;
+EXAMPLES FOR WOOLWORTHS:
+- "Woolworths Free Range Chicken Breast 1kg", price: "R 119.99", dataAiHint: "chicken breast"
+- "Woolworths Organic Full Cream Milk 2L", price: "R 34.99", dataAiHint: "milk carton"
+- "Woolworths Sourdough Bread 700g", price: "R 28.50", dataAiHint: "sourdough bread"
+
+EXAMPLES FOR SHOPRITE:
+- "Ritebrand Long Grain Rice 2kg", price: "R 39.99", dataAiHint: "rice bag"
+- "Clover Mellow Cream Cheese 250g", price: "R 32.50", dataAiHint: "cream cheese"
+- "Koo Baked Beans in Tomato Sauce 410g", price: "R 16.99", dataAiHint: "canned beans"
+
+Now generate 10 products for ${storeName}:`;
 }
 
 function parseAIResponse(text: string): any {
   try {
-    const jsonMatch = text.match(/\{[\s\S]*\}/);
-    if (jsonMatch) {
-      return JSON.parse(jsonMatch[0]);
+    // Clean the response - remove any markdown code blocks
+    const cleanedText = text.replace(/```json\n?|\n?```/g, '').trim();
+    
+    // Try to parse the cleaned text directly first
+    try {
+      return JSON.parse(cleanedText);
+    } catch {
+      // If direct parse fails, try to extract JSON
+      const jsonMatch = cleanedText.match(/\{[\s\S]*\}/);
+      if (jsonMatch) {
+        return JSON.parse(jsonMatch[0]);
+      }
     }
-    throw new Error('No JSON found in response');
+    
+    throw new Error('No valid JSON found in response');
   } catch (error) {
     console.error('Error parsing AI response:', error);
+    console.log('Raw AI response:', text);
     throw new Error('Invalid response format from AI');
   }
 }
@@ -157,31 +194,13 @@ function validateProducts(products: any[]): any[] {
 async function generateProductImages(products: any[]): Promise<any[]> {
   const imagePromises = products.map(async (product) => {
     try {
-      const imageResponse = await fetch(`${getBaseUrl()}/api/ai/generate-product-image`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          dataAiHint: product.dataAiHint,
-          width: 200,
-          height: 200,
-        }),
-      });
-
-      if (imageResponse.ok) {
-        const imageData = await imageResponse.json();
-        return {
-          ...product,
-          image: imageData.imageUrl,
-        };
-      } else {
-        console.warn(`Failed to generate image for ${product.name}, using fallback`);
-        return {
-          ...product,
-          image: getFallbackProductImage(product.dataAiHint),
-        };
-      }
+      // Use the FreeAIService directly for image generation
+      const imageUrl = await FreeAIService.generateProductImage(product.dataAiHint);
+      
+      return {
+        ...product,
+        image: imageUrl,
+      };
     } catch (error) {
       console.error(`Error generating image for ${product.name}:`, error);
       return {
@@ -196,14 +215,38 @@ async function generateProductImages(products: any[]): Promise<any[]> {
 
 function getFallbackProductImage(hint: string): string {
   const productImageMap: { [key: string]: string } = {
+    // Dairy
     'milk': 'https://images.unsplash.com/photo-1563636619-e9143da7973b?w=200&h=200&fit=crop',
     'cheese': 'https://images.unsplash.com/photo-1552767059-ce182ead6c1b?w=200&h=200&fit=crop',
     'yogurt': 'https://images.unsplash.com/photo-1567336273898-ebbe52c60a84?w=200&h=200&fit=crop',
+    'butter': 'https://images.unsplash.com/photo-1589985270824-415c14400784?w=200&h=200&fit=crop',
+    
+    // Meat
     'chicken': 'https://images.unsplash.com/photo-1592924357228-91a4daadcfea?w=200&h=200&fit=crop',
     'beef': 'https://images.unsplash.com/photo-1558036117-15e82a2c9a9a?w=200&h=200&fit=crop',
+    'pork': 'https://images.unsplash.com/photo-1558036117-15e82a2c9a9a?w=200&h=200&fit=crop',
+    'sausage': 'https://images.unsplash.com/photo-1558036117-15e82a2c9a9a?w=200&h=200&fit=crop',
+    
+    // Produce
     'apple': 'https://images.unsplash.com/photo-1568702846914-96b305d2aaeb?w=200&h=200&fit=crop',
+    'banana': 'https://images.unsplash.com/photo-1571771894821-ce9b6c11b08e?w=200&h=200&fit=crop',
+    'tomato': 'https://images.unsplash.com/photo-1592924357228-91a4daadcfea?w=200&h=200&fit=crop',
+    'potato': 'https://images.unsplash.com/photo-1518977676601-b53f82aba655?w=200&h=200&fit=crop',
+    
+    // Bakery
     'bread': 'https://images.unsplash.com/photo-1549931319-a545dcf3bc73?w=200&h=200&fit=crop',
+    'rolls': 'https://images.unsplash.com/photo-1509440159596-0249088772ff?w=200&h=200&fit=crop',
+    'pastries': 'https://images.unsplash.com/photo-1555507038-44cf59c3d0ac?w=200&h=200&fit=crop',
+    
+    // Beverages
     'coffee': 'https://images.unsplash.com/photo-1587734195503-904fca47e0e9?w=200&h=200&fit=crop',
+    'juice': 'https://images.unsplash.com/photo-1613478223719-2ab802602423?w=200&h=200&fit=crop',
+    'soda': 'https://images.unsplash.com/photo-1622483767028-3f66f32aef97?w=200&h=200&fit=crop',
+    
+    // Pantry
+    'rice': 'https://images.unsplash.com/photo-1586201375761-83865001e31c?w=200&h=200&fit=crop',
+    'pasta': 'https://images.unsplash.com/photo-1551462147-37885d31561a?w=200&h=200&fit=crop',
+    'cereal': 'https://images.unsplash.com/photo-1627483262769-04d0a1401487?w=200&h=200&fit=crop',
   };
 
   const normalizedHint = hint.toLowerCase();
@@ -215,16 +258,6 @@ function getFallbackProductImage(hint: string): string {
   }
 
   return 'https://images.unsplash.com/photo-1542838132-92c53300491e?w=200&h=200&fit=crop';
-}
-
-function getBaseUrl(): string {
-  if (process.env.VERCEL_URL) {
-    return `https://${process.env.VERCEL_URL}`;
-  }
-  if (process.env.NEXT_PUBLIC_APP_URL) {
-    return process.env.NEXT_PUBLIC_APP_URL;
-  }
-  return 'http://localhost:3000';
 }
 
 export async function GET(request: NextRequest) {
