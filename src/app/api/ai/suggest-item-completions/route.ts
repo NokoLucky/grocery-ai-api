@@ -41,38 +41,42 @@ export async function POST(request: NextRequest) {
   }
 }
 
+// In suggest-item-completions/route.ts - add debugging
 async function suggestItemCompletionsFlow(
   input: z.infer<typeof SuggestItemCompletionsInputSchema>
 ): Promise<z.infer<typeof SuggestItemCompletionsOutputSchema>> {
+  console.log('🔍 Starting suggestItemCompletionsFlow with query:', input.query);
+  
   const prompt = createPrompt(input.query);
   const systemPrompt = `You are an autocomplete agent for a shopping list app in South Africa. Return ONLY valid JSON.`;
   
+  console.log('📝 Prompt:', prompt);
+  
   const response = await FreeAIService.generateText(prompt, systemPrompt);
+  console.log('🤖 Raw AI Response:', response);
+  
   const parsedResult = parseAIResponse(response);
-  return validateAndProcessSuggestions(parsedResult);
+  console.log('📊 Parsed Result:', parsedResult);
+  
+  const finalResult = validateAndProcessSuggestions(parsedResult);
+  console.log('✅ Final Result:', finalResult);
+  
+  return finalResult;
 }
 
 function createPrompt(query: string): string {
-  return `You are an autocomplete agent for a shopping list app in South Africa. Given the user's input, suggest 8 likely completions for the item they are typing.
+  return `Suggest 8 grocery item completions for "${query}" in South African stores.
 
-Only return likely product names that are commonly found in South African grocery stores.
-
-User Input: "${query}"
-
-IMPORTANT: Return ONLY valid JSON in this exact format:
+Return ONLY this JSON format, nothing else:
 {
-  "suggestions": ["suggestion 1", "suggestion 2", "suggestion 3", ...]
+  "suggestions": ["item1", "item2", "item3", "item4", "item5", "item6", "item7", "item8"]
 }
 
-Rules:
-- Return exactly 8 suggestions
-- Suggestions should be common grocery items in South Africa
-- Keep suggestions relevant to the user's input
-- Return empty array if input doesn't make sense for grocery items
-- Suggestions should be complete product names, not just word completions
-- Include variety (different brands, types, etc.)
-- Examples for "mil": ["milk", "milk powder", "milkshake", "millet", "mild cheese", "milk tart", "milk bread", "milk chocolate"]
-- Examples for "bre": ["bread", "bread rolls", "brown bread", "white bread", "bread flour", "bread crumbs", "bread machine", "bread knife"]`;
+Examples:
+- For "mil": ["Milk", "Milk Powder", "Milkshake", "Millet", "Mild Cheese", "Milk Tart", "Milk Bread", "Milk Chocolate"]
+- For "bre": ["Bread", "Bread Rolls", "Brown Bread", "White Bread", "Bread Flour", "Bread Crumbs", "Bread Machine", "Bread Knife"]
+
+Now suggest for "${query}":`;
 }
 
 function parseAIResponse(text: string): any {
