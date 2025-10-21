@@ -41,12 +41,13 @@ export class FreeAIService {
     return this.generateMockResponse(prompt);
   }
 
-  private static async tryGroq(prompt: string, systemPrompt?: string): Promise<string> {
-    const apiKey = process.env.GROQ_API_KEY;
-    if (!apiKey) {
-      throw new Error('Groq API key not found');
-    }
+ private static async tryGroq(prompt: string, systemPrompt?: string): Promise<string> {
+  const apiKey = process.env.GROQ_API_KEY;
+  if (!apiKey) {
+    throw new Error('Groq API key not found');
+  }
 
+  try {
     const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
       method: 'POST',
       headers: {
@@ -55,73 +56,100 @@ export class FreeAIService {
       },
       body: JSON.stringify({
         messages: [
-          { role: 'system', content: systemPrompt || 'You are a helpful assistant.' },
-          { role: 'user', content: prompt },
+          { 
+            role: 'system', 
+            content: systemPrompt || 'You are a helpful assistant that returns valid JSON.' 
+          },
+          { 
+            role: 'user', 
+            content: prompt 
+          },
         ],
-        model: 'llama3-70b-8192',
-        temperature: 0.7,
-        max_tokens: 4000,
+        model: 'llama-3.1-8b-instant', // Use a smaller, faster model
+        temperature: 0.3, // Lower temperature for more consistent JSON
+        max_tokens: 1000,
         top_p: 1,
         stream: false,
       }),
     });
 
+    console.log(`📊 Groq response status: ${response.status}`);
+    
     if (!response.ok) {
-      throw new Error(`Groq API error: ${response.status}`);
+      const errorText = await response.text();
+      console.log(`❌ Groq error response:`, errorText);
+      throw new Error(`Groq API error: ${response.status} - ${errorText}`);
     }
 
     const data = await response.json();
-    return data.choices[0]?.message?.content || '';
-  }
-
-  private static async tryOpenRouter(prompt: string, systemPrompt?: string): Promise<string> {
-    const apiKey = process.env.OPENROUTER_API_KEY;
-    if (!apiKey) {
-      throw new Error('OpenRouter API key not found');
-    }
-
-    // Try multiple free models
-    const freeModels = [
-      'google/gemma-7b-it:free',
-      'huggingfaceh4/zephyr-7b-beta:free', 
-      'meta-llama/llama-2-13b-chat:free',
-    ];
-
-    for (const model of freeModels) {
-      try {
-        console.log(`🔄 Trying OpenRouter model: ${model}`);
-        
-        const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${apiKey}`,
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            model: model,
-            messages: [
-              { role: 'system', content: systemPrompt || 'You are a helpful assistant.' },
-              { role: 'user', content: prompt },
-            ],
-            max_tokens: 2000,
-          }),
-        });
-
-        if (response.ok) {
-          const data = await response.json();
-          const content = data.choices[0]?.message?.content;
-          if (content && content.trim().length > 0) {
-            console.log(`✅ OpenRouter success with model: ${model}`);
-            return content;
-          }
-        }
-      } catch (error) {
-        console.log(`❌ OpenRouter model ${model} error:`, error);
-      }
-    }
+    console.log('📄 Groq response data:', JSON.stringify(data, null, 2));
     
-    throw new Error('All OpenRouter models failed');
+    return data.choices[0]?.message?.content || '';
+  } catch (error) {
+    console.log('❌ Groq fetch error:', error);
+    throw error;
   }
+}
+
+ private static async tryOpenRouter(prompt: string, systemPrompt?: string): Promise<string> {
+  const apiKey = process.env.OPENROUTER_API_KEY;
+  if (!apiKey) {
+    throw new Error('OpenRouter API key not found');
+  }
+
+  // Updated free models that are more reliable
+  const freeModels = [
+    'google/gemma-7b-it:free',
+    'huggingfaceh4/zephyr-7b-beta:free',
+    'meta-llama/llama-3.1-8b-instruct:free', // Newer model
+  ];
+
+  for (const model of freeModels) {
+    try {
+      console.log(`🔄 Trying OpenRouter model: ${model}`);
+      
+      const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${apiKey}`,
+          'Content-Type': 'application/json',
+          'HTTP-Referer': 'https://your-vercel-app.vercel.app', // Required by OpenRouter
+          'X-Title': 'Grocery AI App', // Required by OpenRouter
+        },
+        body: JSON.stringify({
+          model: model,
+          messages: [
+            { 
+              role: 'system', 
+              content: (systemPrompt || 'You are a helpful assistant.') + ' Return ONLY valid JSON.' 
+            },
+            { role: 'user', content: prompt },
+          ],
+          max_tokens: 800,
+          temperature: 0.3,
+        }),
+      });
+
+      console.log(`📊 OpenRouter response status: ${response.status}`);
+      
+      if (response.ok) {
+        const data = await response.json();
+        console.log(`✅ OpenRouter success with model: ${model}`, data);
+        const content = data.choices[0]?.message?.content;
+        if (content && content.trim().length > 0) {
+          return content;
+        }
+      } else {
+        const errorText = await response.text();
+        console.log(`❌ OpenRouter model ${model} failed: ${response.status} - ${errorText}`);
+      }
+    } catch (error) {
+      console.log(`❌ OpenRouter model ${model} error:`, error);
+    }
+  }
+  
+  throw new Error('All OpenRouter models failed');
+}
 
   // Keep your existing generateMockResponse method for fallback
   private static generateMockResponse(prompt: string): string {

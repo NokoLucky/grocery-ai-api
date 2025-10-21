@@ -65,18 +65,18 @@ async function suggestItemCompletionsFlow(
 }
 
 function createPrompt(query: string): string {
-  return `Suggest 8 grocery item completions for "${query}" in South African stores.
+  return `You are a shopping list autocomplete assistant for South African grocery stores.
 
-Return ONLY this JSON format, nothing else:
+User is typing: "${query}"
+
+Suggest exactly 8 grocery item completions that start with "${query}".
+
+CRITICAL: Return ONLY valid JSON in this exact format, no other text:
 {
-  "suggestions": ["item1", "item2", "item3", "item4", "item5", "item6", "item7", "item8"]
+  "suggestions": ["Item 1", "Item 2", "Item 3", "Item 4", "Item 5", "Item 6", "Item 7", "Item 8"]
 }
 
-Examples:
-- For "mil": ["Milk", "Milk Powder", "Milkshake", "Millet", "Mild Cheese", "Milk Tart", "Milk Bread", "Milk Chocolate"]
-- For "bre": ["Bread", "Bread Rolls", "Brown Bread", "White Bread", "Bread Flour", "Bread Crumbs", "Bread Machine", "Bread Knife"]
-
-Now suggest for "${query}":`;
+Make sure all items are common in South African grocery stores and relevant to "${query}".`;
 }
 
 function parseAIResponse(text: string): any {
