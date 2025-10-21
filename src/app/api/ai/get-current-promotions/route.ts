@@ -33,8 +33,6 @@ const CachedPromotionsSchema = GetCurrentPromotionsOutputSchema.extend({
 });
 type CachedPromotions = z.infer<typeof CachedPromotionsSchema>;
 
-
-
 // Simple in-memory cache
 let cache: any = null;
 let lastCacheUpdate = 0;
@@ -100,48 +98,82 @@ async function getCurrentPromotionsFlow(): Promise<z.infer<typeof GetCurrentProm
 }
 
 function createPrompt(): string {
-  const currentDate = new Date().toLocaleDateString('en-CA');
+  const currentDate = new Date();
+  const currentMonth = currentDate.toLocaleDateString('en-US', { month: 'long' });
+  const formattedDate = currentDate.toLocaleDateString('en-CA');
   
   return `You are a promotions manager for a South African grocery app.
 Generate a list of 5 realistic, appealing promotions currently available at major South African retailers.
 
-Today's date is ${currentDate}. Ensure the 'validUntil' date for each promotion is within the next month from today.
+CONTEXT:
+- Current month: ${currentMonth} (consider seasonal products)
+- Major retailers: Checkers, Shoprite, Pick n Pay, Woolworths, Spar
+- Typical promotion types: Percentage discounts, "Buy X Get Y Free", Multi-buy deals, Weekend specials
 
-For each promotion, provide:
-- A catchy title that includes the discount if applicable
-- The store name
-- A 1-2 word hint for generating a relevant image (dataAiHint) - be specific
-- A product category
-- An optional discount percentage (make it realistic, e.g., 10-30%)
-- A valid expiration date (validUntil) in YYYY-MM-DD format
-- For the 'img' field, use a temporary placeholder like "image_to_be_generated"
+RULES:
+- Create promotions that are realistic for South African grocery stores
+- Include specific brand names where appropriate (e.g., "Koo Baked Beans", "Clover Milk", "Albany Bread")
+- Make discount percentages realistic (10-40% range)
+- Ensure validUntil dates are within the next 2-4 weeks from ${formattedDate}
+- Use catchy, compelling titles that include the offer
+- Include variety across different product categories
+- Distribute promotions across different retailers
 
-IMPORTANT: Return ONLY valid JSON in this exact format:
+PRODUCT CATEGORIES TO CONSIDER:
+- Dairy & Eggs (milk, cheese, yogurt, butter)
+- Meat & Poultry (chicken, beef, pork)
+- Fresh Produce (fruits, vegetables)
+- Bakery (bread, rolls, pastries) 
+- Beverages (juice, soft drinks, water)
+- Pantry Staples (rice, pasta, canned goods)
+- Household (cleaning products, toiletries)
+
+CRITICAL: Return ONLY valid JSON in this exact format:
 {
   "promotions": [
     {
-      "title": "Promotion Title",
-      "store": "Store Name", 
+      "title": "Catchy Promotion Title with Specific Offer",
+      "store": "Store Name",
       "img": "image_to_be_generated",
-      "dataAiHint": "product hint",
+      "dataAiHint": "specific product type",
       "category": "Product Category",
-      "discountPercent": 15,
-      "validUntil": "2024-12-31"
+      "discountPercent": 25,
+      "validUntil": "2024-12-15"
     }
   ]
-}`;
+}
+
+EXAMPLES OF REALISTIC PROMOTIONS:
+- "25% Off All Clover Dairy Products This Weekend"
+- "Buy 2 Get 1 Free on Koo Canned Vegetables" 
+- "Weekend Meat Special: 30% Off Chicken & Beef"
+- "Back to School: 20% Off All Lunchbox Essentials"
+- "Fresh Bakery Sale - R10 Off All Bread Varieties"
+
+Generate 5 current promotions for ${currentMonth}:`;
 }
 
 function parseAIResponse(text: string): any {
   console.log('🔍 Parsing AI response:', text.substring(0, 200) + '...');
   try {
-    const jsonMatch = text.match(/\{[\s\S]*\}/);
-    if (jsonMatch) {
-      return JSON.parse(jsonMatch[0]);
+    // Clean the response - remove any markdown code blocks
+    const cleanedText = text.replace(/```json\n?|\n?```/g, '').trim();
+    
+    // Try to parse the cleaned text directly first
+    try {
+      return JSON.parse(cleanedText);
+    } catch {
+      // If direct parse fails, try to extract JSON
+      const jsonMatch = cleanedText.match(/\{[\s\S]*\}/);
+      if (jsonMatch) {
+        return JSON.parse(jsonMatch[0]);
+      }
     }
-    throw new Error('No JSON found in response');
+    
+    throw new Error('No valid JSON found in response');
   } catch (error) {
     console.error('❌ Error parsing AI response:', error);
+    console.log('Raw AI response:', text);
     throw new Error('Invalid response format from AI');
   }
 }
@@ -149,25 +181,60 @@ function parseAIResponse(text: string): any {
 async function processPromotionsWithImages(promotions: any[]): Promise<any[]> {
   console.log('🖼️ Processing images for', promotions.length, 'promotions');
   
-  // Simple image processing - no API calls
+  // Enhanced image mapping with more specific categories
+  const imageMap: { [key: string]: string } = {
+    // Dairy
+    'dairy': 'https://images.unsplash.com/photo-1563636619-e9143da7973b?w=400&h=300&fit=crop',
+    'milk': 'https://images.unsplash.com/photo-1563636619-e9143da7973b?w=400&h=300&fit=crop',
+    'cheese': 'https://images.unsplash.com/photo-1552767050-9b3bdf1c91a5?w=400&h=300&fit=crop',
+    'yogurt': 'https://images.unsplash.com/photo-1488477181946-6428a0291770?w=400&h=300&fit=crop',
+    
+    // Meat
+    'meat': 'https://images.unsplash.com/photo-1592924357228-91a4daadcfea?w=400&h=300&fit=crop',
+    'chicken': 'https://images.unsplash.com/photo-1604503468506-9de1a0fd5c79?w=400&h=300&fit=crop',
+    'beef': 'https://images.unsplash.com/photo-1594046243099-7a5e0745f1a3?w=400&h=300&fit=crop',
+    'poultry': 'https://images.unsplash.com/photo-1604503468506-9e1a0fd5c79?w=400&h=300&fit=crop',
+    
+    // Produce
+    'produce': 'https://images.unsplash.com/photo-1542838132-92c53300491e?w=400&h=300&fit=crop',
+    'fruits': 'https://images.unsplash.com/photo-1619566636858-adf3ef46400b?w=400&h=300&fit=crop',
+    'vegetables': 'https://images.unsplash.com/photo-1597362925123-77861d3fbac7?w=400&h=300&fit=crop',
+    'fresh': 'https://images.unsplash.com/photo-1542838132-92c53300491e?w=400&h=300&fit=crop',
+    
+    // Bakery
+    'bakery': 'https://images.unsplash.com/photo-1509440159596-0249088772ff?w=400&h=300&fit=crop',
+    'bread': 'https://images.unsplash.com/photo-1549931319-a545dcf3bc73?w=400&h=300&fit=crop',
+    'pastries': 'https://images.unsplash.com/photo-1555507038-44cf59c3d0ac?w=400&h=300&fit=crop',
+    
+    // Beverages
+    'beverages': 'https://images.unsplash.com/photo-1541692645473-2ce69a4c0654?w=400&h=300&fit=crop',
+    'juice': 'https://images.unsplash.com/photo-1613478223719-2ab802602423?w=400&h=300&fit=crop',
+    'drinks': 'https://images.unsplash.com/photo-1541692645473-2ce69a4c0654?w=400&h=300&fit=crop',
+    
+    // Pantry
+    'pantry': 'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=400&h=300&fit=crop',
+    'canned': 'https://images.unsplash.com/photo-1594489573268-46b8d7674786?w=400&h=300&fit=crop',
+    'staples': 'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=400&h=300&fit=crop',
+    
+    // Household
+    'household': 'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=400&h=300&fit=crop',
+    'cleaning': 'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=400&h=300&fit=crop',
+    'toiletries': 'https://images.unsplash.com/photo-1556228578-8c89e6d6acb7?w=400&h=300&fit=crop',
+  };
+
   const promotionsWithImages = promotions.map((promotion, index) => {
     const category = promotion.category?.toLowerCase() || 'general';
+    const dataAiHint = promotion.dataAiHint?.toLowerCase() || 'grocery';
     
-    const imageMap: { [key: string]: string } = {
-      dairy: 'https://images.unsplash.com/photo-1563636619-e9143da7973b?w=400&h=300&fit=crop',
-      meat: 'https://images.unsplash.com/photo-1592924357228-91a4daadcfea?w=400&h=300&fit=crop',
-      produce: 'https://images.unsplash.com/photo-1542838132-92c53300491e?w=400&h=300&fit=crop',
-      bakery: 'https://images.unsplash.com/photo-1509440159596-0249088772ff?w=400&h=300&fit=crop',
-      beverages: 'https://images.unsplash.com/photo-1541692645473-2ce69a4c0654?w=400&h=300&fit=crop',
-      household: 'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=400&h=300&fit=crop',
-    };
+    // Find the best matching image
+    let imageUrl = imageMap[dataAiHint] || imageMap[category] || 'https://images.unsplash.com/photo-1542838132-92c53300491e?w=400&h=300&fit=crop';
 
     return {
       ...promotion,
-      img: imageMap[category] || 'https://images.unsplash.com/photo-1542838132-92c53300491e?w=400&h=300&fit=crop',
+      img: imageUrl,
       title: promotion.title || `Special Offer ${index + 1}`,
       store: promotion.store || 'Supermarket',
-      dataAiHint: promotion.dataAiHint || 'grocery item',
+      dataAiHint: promotion.dataAiHint || category,
       category: promotion.category || 'General',
       discountPercent: promotion.discountPercent || undefined,
       validUntil: promotion.validUntil || getDefaultExpiryDate(),
