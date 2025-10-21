@@ -70,18 +70,31 @@ Rules:
 - Keep suggestions relevant to the user's input
 - Return empty array if input doesn't make sense for grocery items
 - Suggestions should be complete product names, not just word completions
-- Include variety (different brands, types, etc.)`;
+- Include variety (different brands, types, etc.)
+- Examples for "mil": ["milk", "milk powder", "milkshake", "millet", "mild cheese", "milk tart", "milk bread", "milk chocolate"]
+- Examples for "bre": ["bread", "bread rolls", "brown bread", "white bread", "bread flour", "bread crumbs", "bread machine", "bread knife"]`;
 }
 
 function parseAIResponse(text: string): any {
   try {
-    const jsonMatch = text.match(/\{[\s\S]*\}/);
-    if (jsonMatch) {
-      return JSON.parse(jsonMatch[0]);
+    // Clean the response - remove any markdown code blocks
+    const cleanedText = text.replace(/```json\n?|\n?```/g, '').trim();
+    
+    // Try to parse the cleaned text directly first
+    try {
+      return JSON.parse(cleanedText);
+    } catch {
+      // If direct parse fails, try to extract JSON
+      const jsonMatch = cleanedText.match(/\{[\s\S]*\}/);
+      if (jsonMatch) {
+        return JSON.parse(jsonMatch[0]);
+      }
     }
-    throw new Error('No JSON found in response');
+    
+    throw new Error('No valid JSON found in response');
   } catch (error) {
     console.error('Error parsing AI response:', error);
+    console.log('Raw AI response:', text);
     return { suggestions: [] };
   }
 }
@@ -93,9 +106,12 @@ function validateAndProcessSuggestions(result: any): z.infer<typeof SuggestItemC
 
   const suggestions = result.suggestions
     .filter((suggestion: any) => typeof suggestion === 'string' && suggestion.trim().length > 0)
-    .map((suggestion: string) => suggestion.trim())
+    .map((suggestion: string) => {
+      // Capitalize first letter of each suggestion
+      return suggestion.trim().charAt(0).toUpperCase() + suggestion.trim().slice(1);
+    })
     .filter((suggestion: string, index: number, array: string[]) => 
-      array.indexOf(suggestion) === index
+      array.indexOf(suggestion) === index // Remove duplicates
     )
     .slice(0, 8);
 
