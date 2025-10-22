@@ -150,26 +150,30 @@ PROMOTION TYPE OPTIONS:
 Generate 12 realistic promotions for ${currentMonth} that South African shoppers would actually find valuable:`;
 }
 
-function parseAIResponse(text: string): any {
-  try {
-    const cleanedText = text.replace(/```json\n?|\n?```/g, '').trim();
-    
+  function parseAIResponse(text: string): any {
     try {
-      return JSON.parse(cleanedText);
-    } catch {
-      const jsonMatch = cleanedText.match(/\{[\s\S]*\}/);
-      if (jsonMatch) {
-        return JSON.parse(jsonMatch[0]);
+      // Try to extract whatever promotions we can get from the partial response
+      const promotionsMatch = text.match(/"promotions"\s*:\s*\[[\s\S]*?\](?=\s*[}\]])/);
+      if (promotionsMatch) {
+        const partialJson = `{${promotionsMatch[0]}}`;
+        try {
+          const result = JSON.parse(partialJson);
+          console.log(`✅ Extracted ${result.promotions?.length || 0} promotions from partial response`);
+          return result;
+        } catch (e) {
+          // Continue to fallback
+        }
       }
+      
+      // Fallback to original parsing
+      const cleanedText = text.replace(/```json\n?|\n?```/g, '').trim();
+      return JSON.parse(cleanedText);
+    } catch (error) {
+      console.error('❌ Error parsing AI response:', error);
+      // Return empty promotions instead of throwing error
+      return { promotions: [] };
     }
-    
-    throw new Error('No valid JSON found in response');
-  } catch (error) {
-    console.error('❌ Error parsing AI response:', error);
-    console.log('Raw AI response:', text);
-    throw new Error('Invalid response format from AI');
   }
-}
 
 async function processPromotionsWithImages(promotions: any[]): Promise<any[]> {
   const imageMap: { [key: string]: string } = {
