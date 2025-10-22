@@ -175,44 +175,102 @@ Generate 12 realistic promotions for ${currentMonth} that South African shoppers
     }
   }
 
-async function processPromotionsWithImages(promotions: any[]): Promise<any[]> {
+  async function processPromotionsWithImages(promotions: any[]): Promise<any[]> {
   const imageMap: { [key: string]: string } = {
-    // Cereals
-    'cereal': 'https://images.unsplash.com/photo-1627483262769-04d0a1401487?w=400&h=300&fit=crop',
+    // Cereals - specific mappings
     'corn flakes': 'https://images.unsplash.com/photo-1627483262769-04d0a1401487?w=400&h=300&fit=crop',
-    'weet-bix': 'https://images.unsplash.com/photo-1627483262769-04d0a1401487?w=400&h=300&fit=crop',
+    'cereal': 'https://images.unsplash.com/photo-1627483262769-04d0a1401487?w=400&h=300&fit=crop',
+    'kellogg': 'https://images.unsplash.com/photo-1627483262769-04d0a1401487?w=400&h=300&fit=crop',
+    'weet-bix': 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=400&h=300&fit=crop',
+    'maize meal': 'https://images.unsplash.com/photo-1586201375761-83865001e31c?w=400&h=300&fit=crop',
     
-    // Beverages
-    'juice': 'https://images.unsplash.com/photo-1600271886742-f049cd451bba?w=400&h=300&fit=crop',
+    // Rice & Grains
+    'rice': 'https://images.unsplash.com/photo-1586201375761-83865001e31c?w=400&h=300&fit=crop',
+    'tastic': 'https://images.unsplash.com/photo-1586201375761-83865001e31c?w=400&h=300&fit=crop',
+    'pantry': 'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=400&h=300&fit=crop',
+    
+    // Beverages - specific mappings
+    'coca-cola': 'https://images.unsplash.com/photo-1622483767028-3f66f32aef97?w=400&h=300&fit=crop',
     'soda': 'https://images.unsplash.com/photo-1622483767028-3f66f32aef97?w=400&h=300&fit=crop',
-    'coffee': 'https://images.unsplash.com/photo-1587734195503-904fca47e0e9?w=400&h=300&fit=crop',
+    'juice': 'https://images.unsplash.com/photo-1600271886742-f049cd451bba?w=400&h=300&fit=crop',
+    'sir fruit': 'https://images.unsplash.com/photo-1600271886742-f049cd451bba?w=400&h=300&fit=crop',
+    'beverages': 'https://images.unsplash.com/photo-1541692645473-2ce69a4c0654?w=400&h=300&fit=crop',
     
-    // Dairy
+    // Dairy - specific mappings
     'milk': 'https://images.unsplash.com/photo-1563636619-e9143da7973b?w=400&h=300&fit=crop',
-    'cheese': 'https://images.unsplash.com/photo-1552767059-ce182ead6c1b?w=400&h=300&fit=crop',
+    'parmalat': 'https://images.unsplash.com/photo-1563636619-e9143da7973b?w=400&h=300&fit=crop',
     'yogurt': 'https://images.unsplash.com/photo-1567336273898-ebbe52c60a84?w=400&h=300&fit=crop',
+    'greek yogurt': 'https://images.unsplash.com/photo-1567336273898-ebbe52c60a84?w=400&h=300&fit=crop',
+    'lancewood': 'https://images.unsplash.com/photo-1552767059-ce182ead6c1b?w=400&h=300&fit=crop',
+    'butter': 'https://images.unsplash.com/photo-1589985270826-4b7bb135bc9d?w=400&h=300&fit=crop',
+    'dairy': 'https://images.unsplash.com/photo-1563636619-e9143da7973b?w=400&h=300&fit=crop',
     
-    // Meat
+    // Meat - specific mappings
     'chicken': 'https://images.unsplash.com/photo-1592924357228-91a4daadcfea?w=400&h=300&fit=crop',
+    'rainbow chicken': 'https://images.unsplash.com/photo-1592924357228-91a4daadcfea?w=400&h=300&fit=crop',
     'beef': 'https://images.unsplash.com/photo-1558036117-15e82a2c9a9a?w=400&h=300&fit=crop',
     'sausages': 'https://images.unsplash.com/photo-1558036117-15e82a2c9a9a?w=400&h=300&fit=crop',
+    'eskort': 'https://images.unsplash.com/photo-1558036117-15e82a2c9a9a?w=400&h=300&fit=crop',
+    'meat': 'https://images.unsplash.com/photo-1592924357228-91a4daadcfea?w=400&h=300&fit=crop',
     
-    // Pantry
-    'rice': 'https://images.unsplash.com/photo-1586201375761-83865001e31c?w=400&h=300&fit=crop',
-    'pasta': 'https://images.unsplash.com/photo-1551462147-37885a5d218d?w=400&h=300&fit=crop',
-    'canned': 'https://images.unsplash.com/photo-1594489573268-46b8d7674786?w=400&h=300&fit=crop',
-    
-    // Household
+    // Household - specific mappings
+    'omo': 'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=400&h=300&fit=crop',
     'detergent': 'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=400&h=300&fit=crop',
-    'cleaner': 'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=400&h=300&fit=crop',
+    'powder': 'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=400&h=300&fit=crop',
+    'household': 'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=400&h=300&fit=crop',
+    
+    // Bread & Bakery
+    'bread': 'https://images.unsplash.com/photo-1549931319-a545dcf3bc73?w=400&h=300&fit=crop',
+    'bakery': 'https://images.unsplash.com/photo-1509440159596-0249088772ff?w=400&h=300&fit=crop',
   };
 
   const promotionsWithImages = promotions.map((promotion, index) => {
-    const category = promotion.category?.toLowerCase() || 'general';
-    const dataAiHint = promotion.dataAiHint?.toLowerCase() || 'grocery';
+    const title = promotion.title?.toLowerCase() || '';
+    const dataAiHint = promotion.dataAiHint?.toLowerCase() || '';
+    const category = promotion.category?.toLowerCase() || '';
     
-    let imageUrl = imageMap[dataAiHint] || imageMap[category] || 'https://images.unsplash.com/photo-1542838132-92c53300491e?w=400&h=300&fit=crop';
-
+    console.log(`🖼️ Finding image for: "${promotion.title}" - hint: ${dataAiHint}, category: ${category}`);
+    
+    // Try multiple matching strategies
+    let imageUrl = null;
+    
+    // Strategy 1: Match by product name keywords
+    for (const [key, url] of Object.entries(imageMap)) {
+      if (title.includes(key)) {
+        imageUrl = url;
+        console.log(`✅ Matched by product name: ${key}`);
+        break;
+      }
+    }
+    
+    // Strategy 2: Match by dataAiHint
+    if (!imageUrl && dataAiHint) {
+      for (const [key, url] of Object.entries(imageMap)) {
+        if (dataAiHint.includes(key)) {
+          imageUrl = url;
+          console.log(`✅ Matched by dataAiHint: ${key}`);
+          break;
+        }
+      }
+    }
+    
+    // Strategy 3: Match by category
+    if (!imageUrl && category) {
+      for (const [key, url] of Object.entries(imageMap)) {
+        if (category.includes(key)) {
+          imageUrl = url;
+          console.log(`✅ Matched by category: ${key}`);
+          break;
+        }
+      }
+    }
+    
+    // Fallback
+    if (!imageUrl) {
+      imageUrl = 'https://images.unsplash.com/photo-1542838132-92c53300491e?w=400&h=300&fit=crop';
+      console.log(`❌ No match found, using fallback image`);
+    }
+    
     return {
       ...promotion,
       img: imageUrl,
@@ -229,6 +287,7 @@ async function processPromotionsWithImages(promotions: any[]): Promise<any[]> {
     };
   });
 
+  console.log('✅ Images processed for all promotions');
   return promotionsWithImages;
 }
 
