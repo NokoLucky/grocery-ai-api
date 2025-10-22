@@ -78,7 +78,7 @@ function createPrompt(): string {
   const formattedDate = currentDate.toLocaleDateString('en-CA');
   
   return `You are a promotions manager for a South African grocery app.
-Generate a list of 12 realistic, item-specific promotions currently running at major South African retailers.
+Generate a list of 10 realistic, item-specific promotions currently running at major South African retailers.
 
 PROMOTION STYLES TO MIMIC (based on real SA store websites):
 
@@ -147,7 +147,7 @@ PROMOTION TYPE OPTIONS:
 - "price_drop" - e.g., "Price Drop! Now R45"
 - "bundle" - e.g., "Combo Deal: 3 items for R99"
 
-Generate 12 realistic promotions for ${currentMonth} that South African shoppers would actually find valuable:`;
+Generate 10 realistic promotions for ${currentMonth} that South African shoppers would actually find valuable:`;
 }
 
   function parseAIResponse(text: string): any {

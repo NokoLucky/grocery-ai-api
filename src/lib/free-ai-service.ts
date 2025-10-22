@@ -67,7 +67,7 @@ export class FreeAIService {
         ],
         model: 'llama-3.1-8b-instant', // Use a smaller, faster model
         temperature: 0.3, // Lower temperature for more consistent JSON
-        max_tokens: 1500,
+        max_tokens: 2000,
         top_p: 1,
         stream: false,
       }),
