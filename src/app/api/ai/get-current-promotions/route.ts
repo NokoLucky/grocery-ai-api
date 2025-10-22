@@ -180,9 +180,7 @@ Generate 10 realistic promotions for ${currentMonth} that South African shoppers
     // Cereals & Breakfast
     'corn flakes': 'https://images.pexels.com/photos/2119758/pexels-photo-2119758.jpeg?auto=compress&cs=tinysrgb&w=400&h=300&fit=crop',
     'kellogg': 'https://images.pexels.com/photos/2119758/pexels-photo-2119758.jpeg?auto=compress&cs=tinysrgb&w=400&h=300&fit=crop',
-    'crunchy nut': 'https://images.pexels.com/photos/2119758/pexels-photo-2119758.jpeg?auto=compress&cs=tinysrgb&w=400&h=300&fit=crop',
     'cereal': 'https://images.pexels.com/photos/2119758/pexels-photo-2119758.jpeg?auto=compress&cs=tinysrgb&w=400&h=300&fit=crop',
-    'breakfast': 'https://images.pexels.com/photos/2119758/pexels-photo-2119758.jpeg?auto=compress&cs=tinysrgb&w=400&h=300&fit=crop',
     
     // Coffee & Tea
     'ricoffy': 'https://images.pexels.com/photos/312418/pexels-photo-312418.jpeg?auto=compress&cs=tinysrgb&w=400&h=300&fit=crop',
@@ -191,152 +189,147 @@ Generate 10 realistic promotions for ${currentMonth} that South African shoppers
     
     // Beverages
     'coca-cola': 'https://images.pexels.com/photos/50593/coca-cola-cold-drink-soft-drink-coke-50593.jpeg?auto=compress&cs=tinysrgb&w=400&h=300&fit=crop',
-    'appletiser': 'https://images.pexels.com/photos/1304548/pexels-photo-1304548.jpeg?auto=compress&cs=tinysrgb&w=400&h=300&fit=crop',
     'juice': 'https://images.pexels.com/photos/1304548/pexels-photo-1304548.jpeg?auto=compress&cs=tinysrgb&w=400&h=300&fit=crop',
-    'sparkling': 'https://images.pexels.com/photos/1304548/pexels-photo-1304548.jpeg?auto=compress&cs=tinysrgb&w=400&h=300&fit=crop',
-    'beverage': 'https://images.pexels.com/photos/1304548/pexels-photo-1304548.jpeg?auto=compress&cs=tinysrgb&w=400&h=300&fit=crop',
     'sir fruit': 'https://images.pexels.com/photos/1304548/pexels-photo-1304548.jpeg?auto=compress&cs=tinysrgb&w=400&h=300&fit=crop',
+    'beverage': 'https://images.pexels.com/photos/1304548/pexels-photo-1304548.jpeg?auto=compress&cs=tinysrgb&w=400&h=300&fit=crop',
     
     // Rice & Grains
     'tastic': 'https://images.pexels.com/photos/2098135/pexels-photo-2098135.jpeg?auto=compress&cs=tinysrgb&w=400&h=300&fit=crop',
     'rice': 'https://images.pexels.com/photos/2098135/pexels-photo-2098135.jpeg?auto=compress&cs=tinysrgb&w=400&h=300&fit=crop',
-    'long grain': 'https://images.pexels.com/photos/2098135/pexels-photo-2098135.jpeg?auto=compress&cs=tinysrgb&w=400&h=300&fit=crop',
     'maize meal': 'https://images.pexels.com/photos/2098135/pexels-photo-2098135.jpeg?auto=compress&cs=tinysrgb&w=400&h=300&fit=crop',
+    'bokomo': 'https://images.pexels.com/photos/2098135/pexels-photo-2098135.jpeg?auto=compress&cs=tinysrgb&w=400&h=300&fit=crop',
     
     // Dairy
     'milk': 'https://images.pexels.com/photos/248412/pexels-photo-248412.jpeg?auto=compress&cs=tinysrgb&w=400&h=300&fit=crop',
     'yogurt': 'https://images.pexels.com/photos/3734612/pexels-photo-3734612.jpeg?auto=compress&cs=tinysrgb&w=400&h=300&fit=crop',
     'greek yogurt': 'https://images.pexels.com/photos/3734612/pexels-photo-3734612.jpeg?auto=compress&cs=tinysrgb&w=400&h=300&fit=crop',
-    'parmalat': 'https://images.pexels.com/photos/248412/pexels-photo-248412.jpeg?auto=compress&cs=tinysrgb&w=400&h=300&fit=crop',
+    'lancewood': 'https://images.pexels.com/photos/3734612/pexels-photo-3734612.jpeg?auto=compress&cs=tinysrgb&w=400&h=300&fit=crop',
     'butter': 'https://images.pexels.com/photos/3311336/pexels-photo-3311336.jpeg?auto=compress&cs=tinysrgb&w=400&h=300&fit=crop',
-    'lancewood': 'https://images.pexels.com/photos/3311336/pexels-photo-3311336.jpeg?auto=compress&cs=tinysrgb&w=400&h=300&fit=crop',
     'dairy': 'https://images.pexels.com/photos/248412/pexels-photo-248412.jpeg?auto=compress&cs=tinysrgb&w=400&h=300&fit=crop',
     
     // Meat & Poultry
     'chicken': 'https://images.pexels.com/photos/65175/pexels-photo-65175.jpeg?auto=compress&cs=tinysrgb&w=400&h=300&fit=crop',
     'rainbow chicken': 'https://images.pexels.com/photos/65175/pexels-photo-65175.jpeg?auto=compress&cs=tinysrgb&w=400&h=300&fit=crop',
     'chicken breast': 'https://images.pexels.com/photos/65175/pexels-photo-65175.jpeg?auto=compress&cs=tinysrgb&w=400&h=300&fit=crop',
-    'beef': 'https://images.pexels.com/photos/65175/pexels-photo-65175.jpeg?auto=compress&cs=tinysrgb&w=400&h=300&fit=crop',
-    'sausages': 'https://images.pexels.com/photos/65175/pexels-photo-65175.jpeg?auto=compress&cs=tinysrgb&w=400&h=300&fit=crop',
-    'eskort': 'https://images.pexels.com/photos/65175/pexels-photo-65175.jpeg?auto=compress&cs=tinysrgb&w=400&h=300&fit=crop',
     'meat': 'https://images.pexels.com/photos/65175/pexels-photo-65175.jpeg?auto=compress&cs=tinysrgb&w=400&h=300&fit=crop',
     
     // Household Cleaning
-    'sunlight': 'https://images.pexels.com/photos/545014/pexels-photo-545014.jpeg?auto=compress&cs=tinysrgb&w=400&h=300&fit=crop',
-    'dishwashing': 'https://images.pexels.com/photos/545014/pexels-photo-545014.jpeg?auto=compress&cs=tinysrgb&w=400&h=300&fit=crop',
-    'liquid': 'https://images.pexels.com/photos/545014/pexels-photo-545014.jpeg?auto=compress&cs=tinysrgb&w=400&h=300&fit=crop',
-    'detergent': 'https://images.pexels.com/photos/545014/pexels-photo-545014.jpeg?auto=compress&cs=tinysrgb&w=400&h=300&fit=crop',
     'omo': 'https://images.pexels.com/photos/545014/pexels-photo-545014.jpeg?auto=compress&cs=tinysrgb&w=400&h=300&fit=crop',
+    'detergent': 'https://images.pexels.com/photos/545014/pexels-photo-545014.jpeg?auto=compress&cs=tinysrgb&w=400&h=300&fit=crop',
     'powder': 'https://images.pexels.com/photos/545014/pexels-photo-545014.jpeg?auto=compress&cs=tinysrgb&w=400&h=300&fit=crop',
-    'cleaning': 'https://images.pexels.com/photos/545014/pexels-photo-545014.jpeg?auto=compress&cs=tinysrgb&w=400&h=300&fit=crop',
     'household': 'https://images.pexels.com/photos/545014/pexels-photo-545014.jpeg?auto=compress&cs=tinysrgb&w=400&h=300&fit=crop',
     
     // Bread & Bakery
     'bread': 'https://images.pexels.com/photos/1775043/pexels-photo-1775043.jpeg?auto=compress&cs=tinysrgb&w=400&h=300&fit=crop',
     'bakery': 'https://images.pexels.com/photos/1775043/pexels-photo-1775043.jpeg?auto=compress&cs=tinysrgb&w=400&h=300&fit=crop',
-    'biscuits': 'https://images.pexels.com/photos/1775043/pexels-photo-1775043.jpeg?auto=compress&cs=tinysrgb&w=400&h=300&fit=crop',
-    'tiger brands': 'https://images.pexels.com/photos/1775043/pexels-photo-1775043.jpeg?auto=compress&cs=tinysrgb&w=400&h=300&fit=crop',
     
     // Eggs
     'eggs': 'https://images.pexels.com/photos/162712/egg-white-food-protein-162712.jpeg?auto=compress&cs=tinysrgb&w=400&h=300&fit=crop',
     
-    // Pantry & Canned
-    'pantry': 'https://images.pexels.com/photos/3962286/pexels-photo-3962286.jpeg?auto=compress&cs=tinysrgb&w=400&h=300&fit=crop',
-    'canned': 'https://images.pexels.com/photos/3962286/pexels-photo-3962286.jpeg?auto=compress&cs=tinysrgb&w=400&h=300&fit=crop',
-    
     // Generic fallbacks
     'grocery': 'https://images.pexels.com/photos/3962286/pexels-photo-3962286.jpeg?auto=compress&cs=tinysrgb&w=400&h=300&fit=crop',
+    'pantry': 'https://images.pexels.com/photos/3962286/pexels-photo-3962286.jpeg?auto=compress&cs=tinysrgb&w=400&h=300&fit=crop',
   };
 
-  const promotionsWithImages = await Promise.all(
-    promotions.map(async (promotion: any, index: number) => {
-      const title: string = promotion.title?.toLowerCase() || '';
-      const dataAiHint: string = promotion.dataAiHint?.toLowerCase() || '';
-      const category: string = promotion.category?.toLowerCase() || '';
-      
-      console.log(`🖼️ Finding image for: "${promotion.title}"`);
-      
-      // Create a combined search text with priority
-      const searchText = `${title} ${dataAiHint} ${category}`.toLowerCase();
-      
-      // Priority 1: Exact product name matches (most specific)
-      let imageUrl: string | null = null;
+  const promotionsWithImages = promotions.map((promotion: any, index: number) => {
+    const title: string = promotion.title?.toLowerCase() || '';
+    const dataAiHint: string = promotion.dataAiHint?.toLowerCase() || '';
+    const category: string = promotion.category?.toLowerCase() || '';
+    
+    console.log(`🖼️ Finding image for: "${promotion.title}"`);
+    
+    // Split title into words for exact matching
+    const titleWords = title.split(/\s+/).filter(word => word.length > 3);
+    const searchWords = [...titleWords, dataAiHint, category];
+    
+    let imageUrl: string | null = null;
+    
+    // Priority 1: Exact multi-word matches (most specific)
+    const multiWordMatches = Object.entries(imageMap)
+      .filter(([key]) => key.includes(' ') && title.includes(key))
+      .sort(([a], [b]) => b[0].length - a[0].length);
+    
+    if (multiWordMatches.length > 0) {
+      imageUrl = multiWordMatches[0][1];
+      console.log(`✅ Multi-word match: "${multiWordMatches[0][0]}"`);
+    }
+    
+    // Priority 2: Exact brand/product name matches
+    if (!imageUrl) {
       const exactMatches = Object.entries(imageMap)
-        .filter(([key]) => title.includes(key))
-        .sort(([a], [b]) => b[0].length - a[0].length); // Prefer longer, more specific matches
+        .filter(([key]) => !key.includes(' ') && searchWords.some(word => word === key))
+        .sort(([a], [b]) => b[0].length - a[0].length);
       
       if (exactMatches.length > 0) {
         imageUrl = exactMatches[0][1];
-        console.log(`✅ Exact match: "${exactMatches[0][0]}"`);
+        console.log(`✅ Exact word match: "${exactMatches[0][0]}"`);
       }
+    }
+    
+    // Priority 3: DataAiHint exact matches
+    if (!imageUrl && dataAiHint) {
+      const hintMatches = Object.entries(imageMap)
+        .filter(([key]) => dataAiHint === key)
+        .sort(([a], [b]) => b[0].length - a[0].length);
       
-      // Priority 2: DataAiHint matches (more specific than category)
-      if (!imageUrl && dataAiHint) {
-        const hintMatches = Object.entries(imageMap)
-          .filter(([key]) => dataAiHint.includes(key))
-          .sort(([a], [b]) => b[0].length - a[0].length);
-        
-        if (hintMatches.length > 0) {
-          imageUrl = hintMatches[0][1];
-          console.log(`✅ DataAiHint match: "${hintMatches[0][0]}"`);
-        }
+      if (hintMatches.length > 0) {
+        imageUrl = hintMatches[0][1];
+        console.log(`✅ DataAiHint exact match: "${hintMatches[0][0]}"`);
       }
+    }
+    
+    // Priority 4: Category exact matches (avoid generic matches)
+    if (!imageUrl && category) {
+      const categoryMatches = Object.entries(imageMap)
+        .filter(([key]) => category === key)
+        .sort(([a], [b]) => b[0].length - a[0].length);
       
-      // Priority 3: Smart category matching (avoid generic "household" for specific products)
-      if (!imageUrl && category) {
-        // Avoid using generic categories if we have specific product info
-        const specificKeywords: string[] = ['chicken', 'milk', 'yogurt', 'butter', 'coffee', 'juice', 'cereal', 'rice', 'detergent', 'bread'];
-        const hasSpecificProduct = specificKeywords.some((keyword: string) => searchText.includes(keyword));
-        
-        if (!hasSpecificProduct) {
-          const categoryMatches = Object.entries(imageMap)
-            .filter(([key]) => category.includes(key))
-            .sort(([a], [b]) => b[0].length - a[0].length);
-          
-          if (categoryMatches.length > 0) {
-            imageUrl = categoryMatches[0][1];
-            console.log(`✅ Category match: "${categoryMatches[0][0]}"`);
+      if (categoryMatches.length > 0) {
+        imageUrl = categoryMatches[0][1];
+        console.log(`✅ Category exact match: "${categoryMatches[0][0]}"`);
+      }
+    }
+    
+    // Priority 5: Fallback to word contains (but only for specific cases)
+    if (!imageUrl) {
+      const containsMatches = Object.entries(imageMap)
+        .filter(([key]) => {
+          // Only use contains for very specific cases, not generic words
+          const specificKeywords = ['chicken', 'milk', 'yogurt', 'butter', 'coffee', 'juice', 'cereal', 'rice', 'detergent', 'bread'];
+          if (specificKeywords.includes(key)) {
+            return title.includes(key);
           }
-        } else {
-          console.log(`⚠️ Skipping generic category match for specific product`);
-        }
-      }
+          return false;
+        })
+        .sort(([a], [b]) => b[0].length - a[0].length);
       
-      // Fallback: Use product-specific fallback instead of generic grocery
-      if (!imageUrl) {
-        // Try to guess based on the most common word in the title
-        const words: string[] = title.split(/\s+/).filter((word: string) => word.length > 3);
-        for (const word of words) {
-          if (imageMap[word]) {
-            imageUrl = imageMap[word];
-            console.log(`✅ Word fallback: "${word}"`);
-            break;
-          }
-        }
+      if (containsMatches.length > 0) {
+        imageUrl = containsMatches[0][1];
+        console.log(`✅ Contains fallback: "${containsMatches[0][0]}"`);
       }
-      
-      // Ultimate fallback
-      if (!imageUrl) {
-        imageUrl = 'https://images.pexels.com/photos/3962286/pexels-photo-3962286.jpeg?auto=compress&cs=tinysrgb&w=400&h=300&fit=crop';
-        console.log(`❌ No good match found, using grocery fallback`);
-      }
-      
-      return {
-        ...promotion,
-        img: imageUrl,
-        title: promotion.title || `Special Offer ${index + 1}`,
-        store: promotion.store || 'Supermarket',
-        dataAiHint: promotion.dataAiHint || category,
-        category: promotion.category || 'General',
-        discountPercent: promotion.discountPercent || undefined,
-        savingsAmount: promotion.savingsAmount || undefined,
-        originalPrice: promotion.originalPrice || undefined,
-        currentPrice: promotion.currentPrice || undefined,
-        promotionType: promotion.promotionType || 'percentage_discount',
-        validUntil: promotion.validUntil || getDefaultExpiryDate(),
-      };
-    })
-  );
+    }
+    
+    // Ultimate fallback
+    if (!imageUrl) {
+      imageUrl = 'https://images.pexels.com/photos/3962286/pexels-photo-3962286.jpeg?auto=compress&cs=tinysrgb&w=400&h=300&fit=crop';
+      console.log(`❌ No good match found, using grocery fallback`);
+    }
+    
+    return {
+      ...promotion,
+      img: imageUrl,
+      title: promotion.title || `Special Offer ${index + 1}`,
+      store: promotion.store || 'Supermarket',
+      dataAiHint: promotion.dataAiHint || category,
+      category: promotion.category || 'General',
+      discountPercent: promotion.discountPercent || undefined,
+      savingsAmount: promotion.savingsAmount || undefined,
+      originalPrice: promotion.originalPrice || undefined,
+      currentPrice: promotion.currentPrice || undefined,
+      promotionType: promotion.promotionType || 'percentage_discount',
+      validUntil: promotion.validUntil || getDefaultExpiryDate(),
+    };
+  });
 
   console.log('✅ Images processed for all promotions');
   return promotionsWithImages;
