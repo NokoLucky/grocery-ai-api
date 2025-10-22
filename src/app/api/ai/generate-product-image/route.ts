@@ -62,15 +62,15 @@ async function generateProductImageFlow(
   console.log(`⏳ CACHE MISS: Getting image for hint: "${input.dataAiHint}"`);
 
   try {
-    // Try Unsplash API first
-    const imageUrl = await generateImageWithUnsplash(input.dataAiHint);
+    // Try Pexels API first
+    const imageUrl = await generateImageWithPexels(input.dataAiHint);
     
     // Cache the result
     imageCache[normalizedHint] = imageUrl;
     
     return { imageUrl };
   } catch (error) {
-    console.error('Image API failed, using fallback:', error);
+    console.error('Pexels API failed, using fallback:', error);
     
     // Fallback to our reliable image map
     const fallbackImage = getFallbackImage(input.dataAiHint);
@@ -80,30 +80,57 @@ async function generateProductImageFlow(
   }
 }
 
-async function generateImageWithUnsplash(hint: string): Promise<string> {
-  const unsplashAccessKey = process.env.UNSPLASH_ACCESS_KEY;
+async function generateImageWithPexels(hint: string): Promise<string> {
+  const pexelsApiKey = process.env.PEXELS_API_KEY;
   
-  if (!unsplashAccessKey) {
-    console.log('🔑 No Unsplash access key, using fallback images');
+  if (!pexelsApiKey) {
+    console.log('🔑 No Pexels API key, using fallback images');
     return getFallbackImage(hint);
   }
 
   try {
+    // Clean up the hint for better search results
+    const searchQuery = hint
+      .toLowerCase()
+      .replace(/[^a-zA-Z0-9 ]/g, '')
+      .replace(/\s+/g, ' ')
+      .trim();
+    
+    // Add "product" to make searches more product-focused
+    const enhancedQuery = `${searchQuery} product grocery shopping`;
+    
+    console.log(`🔍 Searching Pexels for: "${enhancedQuery}"`);
+    
     const response = await fetch(
-      `https://api.unsplash.com/photos/random?query=${encodeURIComponent(hint + ' product grocery')}&orientation=squarish&client_id=${unsplashAccessKey}`
+      `https://api.pexels.com/v1/search?query=${encodeURIComponent(enhancedQuery)}&per_page=1&orientation=square`,
+      {
+        headers: {
+          'Authorization': pexelsApiKey,
+        },
+      }
     );
     
-    console.log(`📊 Unsplash API response status: ${response.status}`);
+    console.log(`📊 Pexels API response status: ${response.status}`);
     
     if (response.ok) {
       const data = await response.json();
-      console.log('✅ Unsplash API success');
-      return data.urls.regular;
+      console.log('✅ Pexels API success, found photos:', data.photos?.length || 0);
+      
+      if (data.photos && data.photos.length > 0) {
+        // Return the medium-sized image (good balance of quality and size)
+        const imageUrl = data.photos[0].src.medium;
+        console.log('🖼️ Selected Pexels image:', imageUrl);
+        return imageUrl;
+      } else {
+        throw new Error('No Pexels images found');
+      }
     } else {
-      throw new Error(`Unsplash API error: ${response.status}`);
+      const errorText = await response.text();
+      console.log('❌ Pexels API error response:', errorText);
+      throw new Error(`Pexels API error: ${response.status}`);
     }
   } catch (error) {
-    console.error('Unsplash API failed:', error);
+    console.error('Pexels API failed:', error);
     throw error;
   }
 }
@@ -111,53 +138,55 @@ async function generateImageWithUnsplash(hint: string): Promise<string> {
 function getFallbackImage(hint: string): string {
   console.log(`🎭 Using fallback image for: ${hint}`);
   
-  // Direct mapping to reliable Unsplash images
+  // Enhanced fallback mapping with more specific categories
   const productImageMap: { [key: string]: string } = {
-    // Dairy
-    'milk': 'https://images.unsplash.com/photo-1563636619-e9143da7973b?w=400&h=400&fit=crop',
-    'cheese': 'https://images.unsplash.com/photo-1552767059-ce182ead6c1b?w=400&h=400&fit=crop',
-    'yogurt': 'https://images.unsplash.com/photo-1567336273898-ebbe52c60a84?w=400&h=400&fit=crop',
-    'butter': 'https://images.unsplash.com/photo-1589985270826-4b7bb135bc9d?w=400&h=400&fit=crop',
+    // Cereals & Breakfast
+    'cereal': 'https://images.pexels.com/photos/2119758/pexels-photo-2119758.jpeg?auto=compress&cs=tinysrgb&w=400&h=400&fit=crop',
+    'corn flakes': 'https://images.pexels.com/photos/2119758/pexels-photo-2119758.jpeg?auto=compress&cs=tinysrgb&w=400&h=400&fit=crop',
+    'breakfast': 'https://images.pexels.com/photos/2119758/pexels-photo-2119758.jpeg?auto=compress&cs=tinysrgb&w=400&h=400&fit=crop',
     
-    // Meat
-    'chicken': 'https://images.unsplash.com/photo-1592924357228-91a4daadcfea?w=400&h=400&fit=crop',
-    'beef': 'https://images.unsplash.com/photo-1558036117-15e82a2c9a9a?w=400&h=400&fit=crop',
-    'fish': 'https://images.unsplash.com/photo-1519708227418-c8fd9a32b7a2?w=400&h=400&fit=crop',
-    'pork': 'https://images.unsplash.com/photo-1558036117-15e82a2c9a9a?w=400&h=400&fit=crop',
-    
-    // Produce
-    'apple': 'https://images.unsplash.com/photo-1568702846914-96b305d2aaeb?w=400&h=400&fit=crop',
-    'banana': 'https://images.unsplash.com/photo-1571771894821-ce9b6c11b08e?w=400&h=400&fit=crop',
-    'tomato': 'https://images.unsplash.com/photo-1546470427-e212b7d3107a?w=400&h=400&fit=crop',
-    'potato': 'https://images.unsplash.com/photo-1518977676601-b53f82aba655?w=400&h=400&fit=crop',
-    'onion': 'https://images.unsplash.com/photo-1580201092677-5bdc9f1c1301?w=400&h=400&fit=crop',
-    'carrot': 'https://images.unsplash.com/photo-1445282768818-728615cc910a?w=400&h=400&fit=crop',
-    'lettuce': 'https://images.unsplash.com/photo-1622206151226-a67ef613b5f3?w=400&h=400&fit=crop',
-    
-    // Bakery
-    'bread': 'https://images.unsplash.com/photo-1549931319-a545dcf3bc73?w=400&h=400&fit=crop',
-    'croissant': 'https://images.unsplash.com/photo-1555507038-44d78bf15d6b?w=400&h=400&fit=crop',
-    'cake': 'https://images.unsplash.com/photo-1578985545062-69928b1d9587?w=400&h=400&fit=crop',
+    // Coffee & Tea
+    'coffee': 'https://images.pexels.com/photos/312418/pexels-photo-312418.jpeg?auto=compress&cs=tinysrgb&w=400&h=400&fit=crop',
+    'ricoffy': 'https://images.pexels.com/photos/312418/pexels-photo-312418.jpeg?auto=compress&cs=tinysrgb&w=400&h=400&fit=crop',
     
     // Beverages
-    'coffee': 'https://images.unsplash.com/photo-1587734195503-904fca47e0e9?w=400&h=400&fit=crop',
-    'juice': 'https://images.unsplash.com/photo-1600271886742-f049cd451bba?w=400&h=400&fit=crop',
-    'soda': 'https://images.unsplash.com/photo-1622483767028-3f66f32aef97?w=400&h=400&fit=crop',
-    'tea': 'https://images.unsplash.com/photo-1556679343-c7306c1976bc?w=400&h=400&fit=crop',
+    'juice': 'https://images.pexels.com/photos/1304548/pexels-photo-1304548.jpeg?auto=compress&cs=tinysrgb&w=400&h=400&fit=crop',
+    'beverage': 'https://images.pexels.com/photos/1304548/pexels-photo-1304548.jpeg?auto=compress&cs=tinysrgb&w=400&h=400&fit=crop',
+    'soda': 'https://images.pexels.com/photos/50593/coca-cola-cold-drink-soft-drink-coke-50593.jpeg?auto=compress&cs=tinysrgb&w=400&h=400&fit=crop',
+    'coca-cola': 'https://images.pexels.com/photos/50593/coca-cola-cold-drink-soft-drink-coke-50593.jpeg?auto=compress&cs=tinysrgb&w=400&h=400&fit=crop',
     
-    // Household
-    'detergent': 'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=400&h=400&fit=crop',
-    'soap': 'https://images.unsplash.com/photo-1600857062243-1e120e53e5e4?w=400&h=400&fit=crop',
-    'shampoo': 'https://images.unsplash.com/photo-1610548822785-7d17f6f6f7da?w=400&h=400&fit=crop',
-    'toothpaste': 'https://images.unsplash.com/photo-1631549916768-4119b2e5f926?w=400&h=400&fit=crop',
+    // Dairy
+    'milk': 'https://images.pexels.com/photos/248412/pexels-photo-248412.jpeg?auto=compress&cs=tinysrgb&w=400&h=400&fit=crop',
+    'yogurt': 'https://images.pexels.com/photos/3734612/pexels-photo-3734612.jpeg?auto=compress&cs=tinysrgb&w=400&h=400&fit=crop',
+    'butter': 'https://images.pexels.com/photos/3311336/pexels-photo-3311336.jpeg?auto=compress&cs=tinysrgb&w=400&h=400&fit=crop',
+    'dairy': 'https://images.pexels.com/photos/248412/pexels-photo-248412.jpeg?auto=compress&cs=tinysrgb&w=400&h=400&fit=crop',
     
-    // Common grocery items
-    'rice': 'https://images.unsplash.com/photo-1586201375761-83865001e31c?w=400&h=400&fit=crop',
-    'pasta': 'https://images.unsplash.com/photo-1551462147-37885a5d218d?w=400&h=400&fit=crop',
-    'eggs': 'https://images.unsplash.com/photo-1582722872445-44dc5f7e3c8f?w=400&h=400&fit=crop',
-    'flour': 'https://images.unsplash.com/photo-1574323347407-f5e1ad6d020b?w=400&h=400&fit=crop',
-    'sugar': 'https://images.unsplash.com/photo-1611859266494-547a6d4f6f5c?w=400&h=400&fit=crop',
-    'oil': 'https://images.unsplash.com/photo-1571115764595-644a1f56a55c?w=400&h=400&fit=crop',
+    // Meat & Poultry
+    'chicken': 'https://images.pexels.com/photos/65175/pexels-photo-65175.jpeg?auto=compress&cs=tinysrgb&w=400&h=400&fit=crop',
+    'meat': 'https://images.pexels.com/photos/65175/pexels-photo-65175.jpeg?auto=compress&cs=tinysrgb&w=400&h=400&fit=crop',
+    'beef': 'https://images.pexels.com/photos/65175/pexels-photo-65175.jpeg?auto=compress&cs=tinysrgb&w=400&h=400&fit=crop',
+    
+    // Rice & Grains
+    'rice': 'https://images.pexels.com/photos/2098135/pexels-photo-2098135.jpeg?auto=compress&cs=tinysrgb&w=400&h=400&fit=crop',
+    'tastic': 'https://images.pexels.com/photos/2098135/pexels-photo-2098135.jpeg?auto=compress&cs=tinysrgb&w=400&h=400&fit=crop',
+    
+    // Household & Cleaning
+    'detergent': 'https://images.pexels.com/photos/545014/pexels-photo-545014.jpeg?auto=compress&cs=tinysrgb&w=400&h=400&fit=crop',
+    'sunlight': 'https://images.pexels.com/photos/545014/pexels-photo-545014.jpeg?auto=compress&cs=tinysrgb&w=400&h=400&fit=crop',
+    'dishwashing': 'https://images.pexels.com/photos/545014/pexels-photo-545014.jpeg?auto=compress&cs=tinysrgb&w=400&h=400&fit=crop',
+    'household': 'https://images.pexels.com/photos/545014/pexels-photo-545014.jpeg?auto=compress&cs=tinysrgb&w=400&h=400&fit=crop',
+    'cleaning': 'https://images.pexels.com/photos/545014/pexels-photo-545014.jpeg?auto=compress&cs=tinysrgb&w=400&h=400&fit=crop',
+    
+    // Bread & Bakery
+    'bread': 'https://images.pexels.com/photos/1775043/pexels-photo-1775043.jpeg?auto=compress&cs=tinysrgb&w=400&h=400&fit=crop',
+    'bakery': 'https://images.pexels.com/photos/1775043/pexels-photo-1775043.jpeg?auto=compress&cs=tinysrgb&w=400&h=400&fit=crop',
+    
+    // Eggs
+    'eggs': 'https://images.pexels.com/photos/162712/egg-white-food-protein-162712.jpeg?auto=compress&cs=tinysrgb&w=400&h=400&fit=crop',
+    
+    // Pantry & Canned
+    'pantry': 'https://images.pexels.com/photos/3962286/pexels-photo-3962286.jpeg?auto=compress&cs=tinysrgb&w=400&h=400&fit=crop',
+    'canned': 'https://images.pexels.com/photos/3962286/pexels-photo-3962286.jpeg?auto=compress&cs=tinysrgb&w=400&h=400&fit=crop',
   };
 
   const normalizedHint = hint.toLowerCase();
@@ -165,14 +194,14 @@ function getFallbackImage(hint: string): string {
   // Find matching image
   for (const [key, imageUrl] of Object.entries(productImageMap)) {
     if (normalizedHint.includes(key)) {
-      console.log(`🖼️ Found matching image for: ${key}`);
+      console.log(`🖼️ Found matching fallback image for: ${key}`);
       return imageUrl;
     }
   }
 
-  // Default generic grocery image
-  console.log('🖼️ Using default grocery image');
-  return 'https://images.unsplash.com/photo-1542838132-92c53300491e?w=400&h=400&fit=crop';
+  // Default generic grocery image from Pexels
+  console.log('🖼️ Using default grocery fallback image');
+  return 'https://images.pexels.com/photos/3962286/pexels-photo-3962286.jpeg?auto=compress&cs=tinysrgb&w=400&h=400&fit=crop';
 }
 
 // Optional: GET handler for direct image generation
