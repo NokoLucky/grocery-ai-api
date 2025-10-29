@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { FreeAIService } from '@/lib/free-ai-service';
+import { jsonWithCors, corsHeaders } from '@/lib/cors';
 
 const GetStoreProductsInputSchema = z.object({
   storeName: z.string().describe('The name of the store.'),
@@ -31,6 +32,13 @@ const GetStoreProductsOutputSchema = z.object({
     .describe('A list of 10 products available at the store.'),
 });
 
+export async function OPTIONS() {
+  return new NextResponse(null, {
+    status: 200,
+    headers: corsHeaders,
+  });
+}
+
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
@@ -40,19 +48,19 @@ export async function POST(request: NextRequest) {
     
     const result = await getStoreProductsFlow(input);
     
-    return NextResponse.json(result);
+    return jsonWithCors(result);
   } catch (error) {
     console.error('Error in get store products:', error);
     
     if (error instanceof z.ZodError) {
-      return NextResponse.json(
+      return jsonWithCors(
         { error: 'Invalid input data', details: error.issues },
         { status: 400 }
       );
     }
     
     const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
-    return NextResponse.json(
+    return jsonWithCors(
       { error: `Failed to get store products: ${errorMessage}` },
       { status: 500 }
     );
@@ -266,7 +274,7 @@ export async function GET(request: NextRequest) {
   const existingProductsParam = searchParams.get('existingProducts');
 
   if (!storeName) {
-    return NextResponse.json(
+    return jsonWithCors(
       { error: 'Query parameter "store" is required' },
       { status: 400 }
     );
@@ -283,10 +291,10 @@ export async function GET(request: NextRequest) {
     });
 
     const result = await getStoreProductsFlow(input);
-    return NextResponse.json(result);
+    return jsonWithCors(result);
   } catch (error) {
     console.error('Error in GET store products:', error);
-    return NextResponse.json(
+    return jsonWithCors(
       { error: 'Failed to get store products' },
       { status: 500 }
     );

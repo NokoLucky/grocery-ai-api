@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
+import { jsonWithCors, corsHeaders } from '@/lib/cors';
 
 // Reuse your existing schemas
 const GenerateProductImageInputSchema = z.object({
@@ -15,6 +16,13 @@ const GenerateProductImageOutputSchema = z.object({
 // Simple in-memory cache
 let imageCache: { [key: string]: string } = {};
 
+export async function OPTIONS() {
+  return new NextResponse(null, {
+    status: 200,
+    headers: corsHeaders,
+  });
+}
+
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
@@ -22,26 +30,26 @@ export async function POST(request: NextRequest) {
 
     // Validate input
     if (!input.dataAiHint || input.dataAiHint.trim().length === 0) {
-      return NextResponse.json(
+      return jsonWithCors(
         { error: 'dataAiHint is required' },
         { status: 400 }
       );
     }
 
     const result = await generateProductImageFlow(input);
-    return NextResponse.json(result);
+    return jsonWithCors(result);
   } catch (error) {
     console.error('Error in generate product image:', error);
     
     if (error instanceof z.ZodError) {
-      return NextResponse.json(
+      return jsonWithCors(
         { error: 'Invalid input data', details: error.issues },
         { status: 400 }
       );
     }
     
     const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
-    return NextResponse.json(
+    return jsonWithCors(
       { error: `Failed to generate product image: ${errorMessage}` },
       { status: 500 }
     );
@@ -212,7 +220,7 @@ export async function GET(request: NextRequest) {
   const height = searchParams.get('height');
 
   if (!hint) {
-    return NextResponse.json(
+    return jsonWithCors(
       { error: 'Query parameter "hint" is required' },
       { status: 400 }
     );
@@ -227,19 +235,19 @@ export async function GET(request: NextRequest) {
 
     const result = await generateProductImageFlow(input);
     
-    return NextResponse.json(result);
+    return jsonWithCors(result);
   } catch (error) {
     console.error('Error in GET generate product image:', error);
     
     if (error instanceof z.ZodError) {
-      return NextResponse.json(
+      return jsonWithCors(
         { error: 'Invalid input data', details: error.issues },
         { status: 400 }
       );
     }
     
     const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
-    return NextResponse.json(
+    return jsonWithCors(
       { error: `Failed to generate product image: ${errorMessage}` },
       { status: 500 }
     );

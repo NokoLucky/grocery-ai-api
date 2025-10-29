@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { FreeAIService } from '@/lib/free-ai-service';
+import { jsonWithCors, corsHeaders } from '@/lib/cors';
 
 // Reuse your existing schemas
 const PriceBreakdownSchema = z.object({
@@ -26,25 +27,32 @@ const GetPriceEstimatesOutputSchema = z.object({
   stores: z.array(StoreSchema).describe('A list of stores with price estimates.'),
 });
 
+export async function OPTIONS() {
+  return new NextResponse(null, {
+    status: 200,
+    headers: corsHeaders,
+  });
+}
+
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
     const input = GetPriceEstimatesInputSchema.parse(body);
 
     const result = await getPriceEstimatesFlow(input);
-    return NextResponse.json(result);
+    return jsonWithCors(result);
   } catch (error) {
     console.error('Error in price estimates:', error);
     
     if (error instanceof z.ZodError) {
-      return NextResponse.json(
+      return jsonWithCors(
         { error: 'Invalid input data', details: error.issues },
         { status: 400 }
       );
     }
     
     const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
-    return NextResponse.json(
+    return jsonWithCors(
       { error: `Failed to get price estimates: ${errorMessage}` },
       { status: 500 }
     );

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { FreeAIService } from '@/lib/free-ai-service';
+import { jsonWithCors, corsHeaders } from '@/lib/cors';
 
 // Updated schema to match real store promotions
 const PromotionSchema = z.object({
@@ -26,12 +27,19 @@ let cache: any = null;
 let lastCacheUpdate = 0;
 const CACHE_DURATION = 24 * 60 * 60 * 1000;
 
+export async function OPTIONS() {
+  return new NextResponse(null, {
+    status: 200,
+    headers: corsHeaders,
+  });
+}
+
 export async function GET(request: NextRequest) {
   try {
     const now = Date.now();
     if (cache && (now - lastCacheUpdate) < CACHE_DURATION) {
       console.log("✅ Returning cached promotions");
-      return NextResponse.json({ promotions: cache.promotions });
+      return jsonWithCors({ promotions: cache.promotions });
     }
 
     console.log("🔄 Cache is stale or missing. Generating new promotions.");
@@ -44,17 +52,17 @@ export async function GET(request: NextRequest) {
     lastCacheUpdate = now;
 
     console.log("✅ Returning new promotions:", result.promotions.length);
-    return NextResponse.json(result);
+    return jsonWithCors(result);
   } catch (error) {
     console.error('❌ Error in get current promotions:', error);
     
     if (cache) {
       console.log("🔄 Error occurred, returning stale cache");
-      return NextResponse.json({ promotions: cache.promotions });
+      return jsonWithCors({ promotions: cache.promotions });
     }
     
     const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
-    return NextResponse.json(
+    return jsonWithCors(
       { error: `Failed to get current promotions: ${errorMessage}` },
       { status: 500 }
     );
@@ -150,32 +158,32 @@ PROMOTION TYPE OPTIONS:
 Generate 10 realistic promotions for ${currentMonth} that South African shoppers would actually find valuable:`;
 }
 
-  function parseAIResponse(text: string): any {
-    try {
-      // Try to extract whatever promotions we can get from the partial response
-      const promotionsMatch = text.match(/"promotions"\s*:\s*\[[\s\S]*?\](?=\s*[}\]])/);
-      if (promotionsMatch) {
-        const partialJson = `{${promotionsMatch[0]}}`;
-        try {
-          const result = JSON.parse(partialJson);
-          console.log(`✅ Extracted ${result.promotions?.length || 0} promotions from partial response`);
-          return result;
-        } catch (e) {
-          // Continue to fallback
-        }
+function parseAIResponse(text: string): any {
+  try {
+    // Try to extract whatever promotions we can get from the partial response
+    const promotionsMatch = text.match(/"promotions"\s*:\s*\[[\s\S]*?\](?=\s*[}\]])/);
+    if (promotionsMatch) {
+      const partialJson = `{${promotionsMatch[0]}}`;
+      try {
+        const result = JSON.parse(partialJson);
+        console.log(`✅ Extracted ${result.promotions?.length || 0} promotions from partial response`);
+        return result;
+      } catch (e) {
+        // Continue to fallback
       }
-      
-      // Fallback to original parsing
-      const cleanedText = text.replace(/```json\n?|\n?```/g, '').trim();
-      return JSON.parse(cleanedText);
-    } catch (error) {
-      console.error('❌ Error parsing AI response:', error);
-      // Return empty promotions instead of throwing error
-      return { promotions: [] };
     }
+    
+    // Fallback to original parsing
+    const cleanedText = text.replace(/```json\n?|\n?```/g, '').trim();
+    return JSON.parse(cleanedText);
+  } catch (error) {
+    console.error('❌ Error parsing AI response:', error);
+    // Return empty promotions instead of throwing error
+    return { promotions: [] };
   }
+}
 
-  async function processPromotionsWithImages(promotions: any[]): Promise<any[]> {
+async function processPromotionsWithImages(promotions: any[]): Promise<any[]> {
   const imageMap: { [key: string]: string } = {
     // Cereals & Breakfast
     'corn flakes': 'https://images.pexels.com/photos/2119758/pexels-photo-2119758.jpeg?auto=compress&cs=tinysrgb&w=400&h=300&fit=crop',
@@ -354,10 +362,10 @@ export async function POST(request: NextRequest) {
     };
     lastCacheUpdate = Date.now();
 
-    return NextResponse.json(result);
+    return jsonWithCors(result);
   } catch (error) {
     console.error('Error refreshing promotions:', error);
-    return NextResponse.json(
+    return jsonWithCors(
       { error: 'Failed to refresh promotions' },
       { status: 500 }
     );
