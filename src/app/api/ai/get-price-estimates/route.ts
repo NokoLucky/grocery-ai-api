@@ -115,10 +115,10 @@ RETAILER PRICING PROFILES (based on typical South African market prices):
    - Price positioning: High
 
 PRICING GUIDELINES:
-- Woolworths: 15-30% higher than average
+- Woolworths: 5-15% higher than average
 - Pick n Pay: Average market prices  
-- Spar: Slightly above average (+5-10%)
-- Shoprite: 5-15% below average
+- Spar: Slightly above average (+2-8%)
+- Shoprite: 5-10% below average
 - Checkers: Competitive, often matches Shoprite
 
 ITEM-SPECIFIC PRICING (typical ZAR ranges):
