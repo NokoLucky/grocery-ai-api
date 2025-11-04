@@ -92,36 +92,48 @@ function createPrompt(storeName: string, existingProducts: string[]): string {
     : '';
 
   return `You are a product database generator for a South African grocery store app.
-Generate a list of 10 realistic, branded grocery products available at ${storeName}.
+Generate a list of 10 realistic grocery products that could be available at ${storeName}, but use GENERIC PRODUCT NAMES without store-specific branding.
 
-STORE PROFILES:
-- WOOLWORTHS: Premium quality, organic, free-range, higher prices. Brands: Woolworths, Nature's Choice
-- CHECKERS: Good quality, competitive pricing, strong house brands. Brands: Checkers, Freshmark
-- PICK N PAY: Balanced quality and price, good fresh sections. Brands: PnP, No Name
-- SHOPRITE: Budget-friendly, value brands, weekly specials. Brands: Ritebrand, House of Coffees
-- SPAR: Convenience focus, good fresh produce and bakery. Brands: Spar, Spar Let's Cook
+CRITICAL REQUIREMENTS:
+- Product names MUST be generic and brand-agnostic
+- DO NOT include store names (Woolworths, Checkers, PnP, Spar, Shoprite) in product names
+- DO NOT include store-specific house brands (Woolworths, Nature's Choice, Checkers, Freshmark, PnP, No Name, Ritebrand, Spar, etc.)
+- Use common South African national brands instead
+- Products should be comparable across different stores
 
-REQUIREMENTS FOR ${storeName.toUpperCase()}:
-- Include specific brand names and sizes (e.g., "Clover Full Cream Milk 2L", "Albany Superior Brown Bread 700g")
+ALLOWED BRANDS (National brands available everywhere):
+- Dairy: Clover, Parmalat, Lancewood, Danone, Ellies, Nestlé
+- Bread: Albany, Sasko, Blue Ribbon, Sunbake, Premier
+- Meat: Rainbow, Eskort, Supreme, Farmer's Choice
+- Pantry: Koo, All Gold, Tastic, Selati, Tiger Brands, Kellogg's, Bokomo
+- Beverages: Coca-Cola, Appletiser, Ceres, Liqui-Fruit, Oros, Five Roses
+- Household: Handy Andy, Sunlight, Omo, Dove, Colgate
+
+PRICING GUIDELINES FOR ${storeName.toUpperCase()}:
+- Woolworths: 15-30% higher than average (premium positioning)
+- Pick n Pay: Average market prices
+- Spar: Slightly above average (+5-15%)
+- Shoprite: 5-20% below average (budget-friendly)
+- Checkers: Competitive, often matches Shoprite
+
+PRODUCT FORMAT REQUIREMENTS:
+- Include brand name, product type, and size
 - Make 2-3 products "onSpecial" with realistic discount pricing
 - Use accurate South African pricing in ZAR
 - Include variety across categories: dairy, meat, produce, bakery, beverages, pantry, household
 - Make dataAiHint specific and descriptive for image generation
-- Ensure products are appropriate for ${storeName}'s typical inventory
 
-PRICING GUIDELINES:
-- Woolworths: 15-30% higher than average
-- Pick n Pay: Average market prices
-- Spar: Slightly above average (+5-15%)
-- Shoprite: 5-20% below average
-- Checkers: Competitive, often matches Shoprite
+EXAMPLES OF GENERIC PRODUCT NAMES:
+✅ CORRECT (Generic): "Clover Full Cream Milk 2L", "Albany Superior Brown Bread 700g", "Koo Baked Beans in Tomato Sauce 410g"
+❌ WRONG (Store-specific): "Woolworths Free Range Chicken", "Checkers House Brand Rice", "PnP Pasta"
 
-COMMON SOUTH AFRICAN BRANDS TO INCLUDE:
-- Dairy: Clover, Parmalat, Lancewood, Danone, Woolworths
-- Bread: Albany, Sasko, Blue Ribbon, Sunbake
-- Meat: Rainbow, Eskort, Supreme, Farmer's Choice
-- Pantry: Koo, All Gold, Tastic, Selati, Tiger Brands
-- Beverages: Coca-Cola, Appletiser, Ceres, Liqui-Fruit${existingProductsText}
+EXAMPLES OF ACCEPTABLE PRODUCTS:
+- "Clover Full Cream Milk 2L" - price based on store positioning
+- "Albany Superior Brown Bread 700g" - available at all stores
+- "Koo Baked Beans in Tomato Sauce 410g" - national brand
+- "Coca-Cola 2L" - universal product
+- "Sunlight Dishwashing Liquid 750ml" - available everywhere
+- "Tastic Long Grain Rice 2kg" - national brand${existingProductsText}
 
 CRITICAL: Return ONLY valid JSON in this exact format:
 {
@@ -138,17 +150,7 @@ CRITICAL: Return ONLY valid JSON in this exact format:
   ]
 }
 
-EXAMPLES FOR WOOLWORTHS:
-- "Woolworths Free Range Chicken Breast 1kg", price: "R 119.99", dataAiHint: "chicken breast"
-- "Woolworths Organic Full Cream Milk 2L", price: "R 34.99", dataAiHint: "milk carton"
-- "Woolworths Sourdough Bread 700g", price: "R 28.50", dataAiHint: "sourdough bread"
-
-EXAMPLES FOR SHOPRITE:
-- "Ritebrand Long Grain Rice 2kg", price: "R 39.99", dataAiHint: "rice bag"
-- "Clover Mellow Cream Cheese 250g", price: "R 32.50", dataAiHint: "cream cheese"
-- "Koo Baked Beans in Tomato Sauce 410g", price: "R 16.99", dataAiHint: "canned beans"
-
-Now generate 10 products for ${storeName}:`;
+Now generate 10 GENERIC, STORE-AGNOSTIC products for ${storeName} with appropriate pricing:`;
 }
 
 function parseAIResponse(text: string): any {
@@ -180,11 +182,28 @@ function validateProducts(products: any[]): any[] {
     return [];
   }
 
+  // List of store-specific terms to filter out
+  const storeSpecificTerms = [
+    'woolworths', 'checkers', 'shoprite', 'spar', 'pick n pay', 'pnp',
+    'freshmark', 'natures choice', 'ritebrand', 'no name', 'lets cook'
+  ];
+
   return products
     .filter((product: any) => {
-      return product && 
-             typeof product.name === 'string' &&
-             typeof product.price === 'string' &&
+      if (!product || typeof product.name !== 'string') return false;
+      
+      // Check if product name contains store-specific terms
+      const productNameLower = product.name.toLowerCase();
+      const hasStoreSpecificTerm = storeSpecificTerms.some(term => 
+        productNameLower.includes(term)
+      );
+      
+      if (hasStoreSpecificTerm) {
+        console.log(`Filtered out store-specific product: ${product.name}`);
+        return false;
+      }
+      
+      return typeof product.price === 'string' &&
              typeof product.dataAiHint === 'string';
     })
     .map((product: any, index: number) => ({
